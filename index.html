@@ -122,7 +122,7 @@
             useEffect(() => {
                 const canvas = document.getElementById('lava-canvas');
                 if (!canvas) return;
-                const ctx = canvas.getContext('2d');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 let width = canvas.width = window.innerWidth;
                 let height = canvas.height = window.innerHeight;
                 let animationFrameId;
@@ -259,9 +259,10 @@
             );
         };
 
-        const PreferenceForm = () => {
+        const PreferenceForm = ({ onFormSubmit }) => {
             const [step, setStep] = useState(1);
             const [isSubmitting, setIsSubmitting] = useState(false);
+
             const [formData, setFormData] = useState({
                 identity: '', ageRange: '', purchaseLocations: [], socialMediaPreference: '', mostImportantFactor: '',
                 adult_purchaseFrequency: '', adult_materialPreference: [], adult_colorPreference: [], adult_priceRange: '',
@@ -270,8 +271,7 @@
                 firstName: '', lastName: '', email: '', phoneNumber: ''
             });
 
-            // --- URL de tu Google Apps Script ---
-            const scriptURL = 'PEGA_AQUÍ_LA_URL_DE_TU_WEB_APP_DE_GOOGLE_APPS_SCRIPT';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbylU-f5oA5Rrk_y2pV7pb6xevuek6LqlOdm_Kpfwf4URuYTZSf_YAV9OcOlouixXk8PdA/exec';
 
             const isChildOnlyFlow = formData.ageRange === 'Estoy respondiendo en nombre de un/a niño/a menor de 12 años';
             
@@ -302,25 +302,25 @@
                 setIsSubmitting(true);
                 
                 const dataToSubmit = new FormData();
-                // Transforma los datos del estado a un formato que el script pueda leer
                 for (const key in formData) {
+                    const lowercaseKey = key.toLowerCase();
                     if (Array.isArray(formData[key])) {
-                        dataToSubmit.append(key, formData[key].join(', '));
+                        dataToSubmit.append(lowercaseKey, formData[key].join(', '));
                     } else {
-                        dataToSubmit.append(key, formData[key]);
+                        dataToSubmit.append(lowercaseKey, formData[key]);
                     }
                 }
 
                 fetch(scriptURL, { method: 'POST', body: dataToSubmit})
                     .then(response => {
-                        alert("¡Gracias por tus preferencias! Te mantendremos informado.");
+                        onFormSubmit(false); // Llama a la función de éxito
                         setIsSubmitting(false);
                         setStep(1);
                         setFormData({ identity: '', ageRange: '', purchaseLocations: [], socialMediaPreference: '', mostImportantFactor: '', adult_purchaseFrequency: '', adult_materialPreference: [], adult_colorPreference: [], adult_priceRange: '', alsoBuysForKids: null, child_purchaseFrequency: '', child_materialPreference: [], child_printPreference: [], child_colorPreference: [], child_priceRange: '', firstName: '', lastName: '', email: '', phoneNumber: '' });
                     })
                     .catch(error => {
                         console.error('Error!', error.message);
-                        alert("Hubo un error al enviar tus preferencias. Por favor, inténtalo de nuevo.");
+                        onFormSubmit(true); // Llama a la función de error
                         setIsSubmitting(false);
                     });
             };
@@ -352,12 +352,12 @@
                     'socialMediaPreference': <div> <h3 className="text-2xl font-semibold mb-6">¿En qué red social pasas más tiempo?</h3> <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {socialPlatforms.map(item => ( <button key={item.name} onClick={() => {handleSelect('socialMediaPreference', item.name); nextStep();}} className="p-4 rounded-xl text-lg transition bg-white hover:bg-[#F8F7F4] flex flex-col items-center gap-2"><span className="text-2xl">{item.icon}</span>{item.name}</button>))} </div> </div>,
                     'mostImportantFactor': <div> <h3 className="text-2xl font-semibold mb-6">¿Cuál es el factor más importante para ti al comprar?</h3> <div className="grid grid-cols-2 md:grid-cols-3 gap-4"> {factors.map(item => ( <button key={item.name} onClick={() => {handleSelect('mostImportantFactor', item.name); nextStep();}} className="p-4 rounded-xl text-lg transition bg-white hover:bg-[#F8F7F4] flex flex-col items-center gap-2"><span className="text-2xl">{item.icon}</span>{item.name}</button>))} </div> </div>,
                     'adult_purchaseFrequency': <div> <h3 className="text-2xl font-semibold mb-6">¿Con qué frecuencia compras ropa interior para ti?</h3> <div className="flex flex-wrap justify-center gap-3"> {adultFrequencies.map(item => ( <button key={item} onClick={() => {handleSelect('adult_purchaseFrequency', item); nextStep();}} className="p-3 px-6 rounded-full text-lg transition bg-white hover:bg-[#F8F7F4]">{item}</button>))} </div> </div>,
-                    'adult_materialPreference': <div> <h3 className="text-2xl font-semibold mb-1">¿Qué tipo de material prefieres para ti?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona los que apliquen)</p> <div className="flex flex-wrap justify-center gap-3"> {adultMaterials.map(item => ( <button key={item} onClick={() => handleSelect('adult_materialPreference', item, true)} className={`py-2 px-4 rounded-full text-base transition ${formData.adult_materialPreference.includes(item) ? 'bg-[#C7A78E] text-white shadow-lg' : 'bg-white hover:bg-[#F8F7F4]'}`}>{item}</button> ))} </div> </div>,
+                    'adult_materialPreference': <div> <h3 className="text-2xl font-semibold mb-1">¿Qué tipo de material prefieres para ti?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona los que apliquen)</p> <div className="flex flex-wrap justify-center gap-3"> {adultMaterials.map(item => ( <button key={item} onClick={() => handleSelect('adult_materialPreference', item, true)} className={`py-2 px-4 rounded-full text-base transition ${formData.adult_materialPreference.includes(item) ? 'bg-[#C7A78E] text-white shadow-lg' : 'bg-white hover:bg-[#F8F7F4]'}`}>{item}</button>))} </div> </div>,
                     'adult_colorPreference': <div> <h3 className="text-2xl font-semibold mb-1">¿Qué colores te inspiran para ti?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona al menos uno)</p> <div className="flex justify-center gap-4"> {colorsData.map(color => ( <div key={color.name} onClick={() => handleSelect('adult_colorPreference', color.name, true)} className={`p-4 rounded-xl cursor-pointer border-4 transition-all duration-200 ${formData.adult_colorPreference.includes(color.name) ? 'border-[#C7A78E] scale-105' : 'border-transparent'}`}><div className="w-24 h-24 rounded-full" style={{backgroundColor: color.hex}}></div><p className="mt-2">{color.name}</p></div> ))} </div> </div>,
                     'adult_priceRange': <div> <h3 className="text-2xl font-semibold mb-6">¿Qué rango de precios consideras aceptable para un set?</h3> <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {adultPrices.map(item => ( <button key={item} onClick={() => {handleSelect('adult_priceRange', item); nextStep();}} className="p-4 rounded-xl text-lg transition bg-white hover:bg-[#F8F7F4]">{item}</button>))} </div> </div>,
                     'alsoBuysForKids': <div><h3 className="text-2xl font-semibold mb-6">¿También compras ropa interior para niños?</h3><div className="flex justify-center gap-4"><button onClick={() => {handleSelect('alsoBuysForKids', true); nextStep();}} className="p-4 rounded-xl text-lg transition bg-white hover:bg-[#F8F7F4]">Sí</button><button onClick={() => {handleSelect('alsoBuysForKids', false); setStep(stepMap.indexOf('final') + 1);}} className="p-4 rounded-xl text-lg transition bg-white hover:bg-[#F8F7F4]">No</button></div></div>,
                     'child_purchaseFrequency': <div> <h3 className="text-2xl font-semibold mb-6">¿Con qué frecuencia compras para tu/s hijo/s?</h3> <div className="flex flex-wrap justify-center gap-3"> {childFrequencies.map(item => ( <button key={item} onClick={() => {handleSelect('child_purchaseFrequency', item); nextStep();}} className="p-3 px-6 rounded-full text-lg transition bg-white hover:bg-[#F8F7F4]">{item}</button>))} </div> </div>,
-                    'child_materialPreference': <div> <h3 className="text-2xl font-semibold mb-1">¿Qué tipo de material prefieres para ellos?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona los que apliquen)</p> <div className="flex flex-wrap justify-center gap-3"> {childMaterials.map(item => ( <button key={item} onClick={() => handleSelect('child_materialPreference', item, true)} className={`py-2 px-4 rounded-full text-base transition ${formData.child_materialPreference.includes(item) ? 'bg-[#C7A78E] text-white shadow-lg' : 'bg-white hover:bg-[#F8F7F4]'}`}>{item}</button> ))} </div> </div>,
+                    'child_materialPreference': <div> <h3 className="text-2xl font-semibold mb-1">¿Qué tipo de material prefieres para ellos?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona los que apliquen)</p> <div className="flex flex-wrap justify-center gap-3"> {childMaterials.map(item => ( <button key={item} onClick={() => handleSelect('child_materialPreference', item, true)} className={`py-2 px-4 rounded-full text-base transition ${formData.child_materialPreference.includes(item) ? 'bg-[#C7A78E] text-white shadow-lg' : 'bg-white hover:bg-[#F8F7F4]'}`}>{item}</button>))} </div> </div>,
                     'child_printPreference': <div> <h3 className="text-2xl font-semibold mb-1">¿Qué tipo de estampados prefieres para ellos?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona los que apliquen)</p> <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {childPrints.map(item => ( <div key={item.name} onClick={() => handleSelect('child_printPreference', item.name, true)} className={`rounded-xl overflow-hidden cursor-pointer border-4 transition-all duration-200 ${formData.child_printPreference.includes(item.name) ? 'border-[#C7A78E] scale-105' : 'border-transparent'}`}><img src={`${item.img}&auto=format&fit=crop`} alt={`[Imagen de un ${item.name}]`} className="h-32 w-full object-cover" /><p className="p-2 bg-white text-sm">{item.name}</p></div> ))} </div> </div>,
                     'child_colorPreference': <div> <h3 className="text-2xl font-semibold mb-1">¿Qué colores te inspiran para ellos?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona al menos uno)</p> <div className="flex justify-center gap-4"> {colorsData.map(color => ( <div key={color.name} onClick={() => handleSelect('child_colorPreference', color.name, true)} className={`p-4 rounded-xl cursor-pointer border-4 transition-all duration-200 ${formData.child_colorPreference.includes(color.name) ? 'border-[#C7A78E] scale-105' : 'border-transparent'}`}><div className="w-24 h-24 rounded-full" style={{backgroundColor: color.hex}}></div><p className="mt-2">{color.name}</p></div> ))} </div> </div>,
                     'child_priceRange': <div> <h3 className="text-2xl font-semibold mb-6">¿Qué rango de precios consideras para un pack de 3-5?</h3> <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {childPrices.map(item => ( <button key={item} onClick={() => {handleSelect('child_priceRange', item); nextStep();}} className="p-4 rounded-xl text-lg transition bg-white hover:bg-[#F8F7F4]">{item}</button>))} </div> </div>,
@@ -461,8 +461,52 @@
                         <p className="mt-2 text-sm text-gray-500">Última actualización: 15 de agosto de 2025</p>
                     </div>
                     <h2>1. ¿Qué Información Recopilamos?</h2>
-                    <p>A través de nuestro formulario de lanzamiento, recopilamos la siguiente información...</p>
-                    {/* ... Resto del contenido de la política ... */}
+                    <p>A través de nuestro formulario de lanzamiento, recopilamos la siguiente información con el fin de realizar un estudio de mercado y crear productos que se ajusten a tus necesidades:</p>
+                    <h3>Datos de Contacto:</h3>
+                    <ul>
+                        <li>Nombre y Apellido</li>
+                        <li>Dirección de correo electrónico</li>
+                        <li>Número de teléfono (opcional)</li>
+                    </ul>
+                    <h3>Datos Demográficos:</h3>
+                    <ul>
+                        <li>Rango de edad (ej. 18-24, 25-34, etc.)</li>
+                    </ul>
+                    <h3>Datos de Preferencias:</h3>
+                    <ul>
+                        <li><strong>Categoría de Interés:</strong> Para quién compras (Damas, Caballeros, Niños).</li>
+                        <li><strong>Estilos Preferidos:</strong> Tipos de prendas que te interesan (ej. Bralette, Boxer, Pijama).</li>
+                        <li><strong>Colores Preferidos:</strong> Paletas de colores que te inspiran (ej. Neutros, Pasteles).</li>
+                        <li><strong>Hábitos de Compra:</strong> Dónde sueles comprar ropa íntima.</li>
+                        <li><strong>Punto de Precio:</strong> Rango de precios que consideras para una prenda.</li>
+                        <li><strong>Frecuencia de Compra:</strong> Con qué frecuencia adquieres ropa íntima.</li>
+                        <li><strong>Atributos Valorados:</strong> Qué es lo más importante para ti al elegir una prenda (Comodidad, Estilo, etc.).</li>
+                    </ul>
+                    <h2>2. ¿Cómo Usamos Tu Información?</h2>
+                    <p>La información que nos proporcionas se utiliza exclusivamente para los siguientes propósitos:</p>
+                    <ul>
+                        <li><strong>Estudio de Mercado:</strong> Analizar las tendencias y preferencias de nuestros futuros clientes para diseñar y lanzar una colección que realmente deseen.</li>
+                        <li><strong>Comunicación de Lanzamiento:</strong> Notificarte por correo electrónico y/o SMS (si proporcionaste tu número) sobre el lanzamiento oficial de nuestra tienda online, así como de colecciones y productos relevantes según tus preferencias.</li>
+                        <li><strong>Ofertas Exclusivas:</strong> Enviarte promociones y acceso anticipado como agradecimiento por ayudarnos a construir nuestra marca.</li>
+                    </ul>
+                    <p><strong>Nunca venderemos tus datos personales a terceros.</strong></p>
+                    <h2>3. ¿Cómo Protegemos Tu Información?</h2>
+                    <p>Implementamos medidas de seguridad técnicas y organizativas para proteger tus datos personales contra el acceso no autorizado, la alteración, la divulgación o la destrucción. El acceso a tu información está restringido a personal autorizado de ERO’S Boutique que necesita conocerla para los fines descritos en esta política.</p>
+                    <h2>4. Tus Derechos</h2>
+                    <p>Tienes derecho a:</p>
+                    <ul>
+                        <li><strong>Acceder</strong> a los datos personales que tenemos sobre ti.</li>
+                        <li><strong>Rectificar</strong> cualquier información incorrecta o incompleta.</li>
+                        <li><strong>Solicitar la eliminación</strong> de tus datos de nuestra base de datos.</li>
+                        <li><strong>Darte de baja</strong> de nuestras comunicaciones de marketing en cualquier momento, utilizando el enlace proporcionado en cada correo electrónico.</li>
+                    </ul>
+                    <p>Para ejercer cualquiera de estos derechos, por favor contáctanos a través de la información proporcionada al final de esta política.</p>
+                    <h2>5. Cambios a esta Política de Privacidad</h2>
+                    <p>Podemos actualizar esta Política de Privacidad ocasionalmente. Te notificaremos de cualquier cambio publicando la nueva política en esta página. Te recomendamos revisarla periódicamente.</p>
+                    <h2>6. Contáctanos</h2>
+                    <p>Si tienes alguna pregunta sobre esta Política de Privacidad o sobre cómo manejamos tus datos, no dudes en contactarnos en:</p>
+                    <p><strong>ERO’S Boutique</strong><br />
+                    Correo electrónico: <a href="mailto:privacidad@erosboutique.com" className="text-[#C7A78E] hover:underline">privacidad@erosboutique.com</a></p>
                     <div className="text-center mt-12">
                         <button onClick={showLaunchpad} className="bg-[#4E443C] text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition">Volver a la Página Principal</button>
                     </div>
@@ -470,12 +514,49 @@
             </div>
         );
 
+        const Notification = ({ message, isError, onclose }) => {
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    onclose();
+                }, 3000);
+                return () => clearTimeout(timer);
+            }, []);
+
+            return (
+                <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${isError ? 'bg-red-500' : 'bg-[#4E443C]'}`}>
+                    {message}
+                </div>
+            );
+        };
+
+        const ThankYouModal = ({ onClose }) => {
+            return (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
+                    <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm mx-4">
+                        <h2 className="text-3xl font-serif text-[#4E443C]">¡Gracias!</h2>
+                        <p className="text-gray-600 mt-4">Hemos recibido tus preferencias. Serás el primero en saber sobre nuestro lanzamiento y ofertas exclusivas.</p>
+                        <button onClick={onClose} className="mt-6 bg-[#C7A78E] text-white px-8 py-3 rounded-lg w-full">Cerrar</button>
+                    </div>
+                </div>
+            );
+        };
+
         // --- Componente Principal de la App ---
         function App() {
             const [currentPage, setCurrentPage] = useState('launchpad');
+            const [showThankYouModal, setShowThankYouModal] = useState(false);
+            const [notification, setNotification] = useState({ show: false, message: '', isError: false });
 
             const showPrivacy = () => setCurrentPage('privacy');
             const showLaunchpad = () => setCurrentPage('launchpad');
+
+            const handleFormSubmit = (isError) => {
+                if (isError) {
+                    setNotification({ show: true, message: 'Hubo un error al enviar tus preferencias.', isError: true });
+                } else {
+                    setShowThankYouModal(true);
+                }
+            };
 
             if (currentPage === 'privacy') {
                 return <PrivacyPolicyPage showLaunchpad={showLaunchpad} />;
@@ -483,12 +564,14 @@
 
             return (
                 <div className="bg-[#F8F7F4] text-[#4E443C] animate-fade-in">
+                  {notification.show && <Notification message={notification.message} isError={notification.isError} onclose={() => setNotification({ show: false, message: '', isError: false })} />}
+                  {showThankYouModal && <ThankYouModal onClose={() => setShowThankYouModal(false)} />}
                   <Header />
                   <main>
                     <Hero />
                     <Collections />
                     <ValueProposition />
-                    <PreferenceForm />
+                    <PreferenceForm onFormSubmit={handleFormSubmit} />
                     <FaqSection />
                   </main>
                   <Footer showPrivacy={showPrivacy} />
