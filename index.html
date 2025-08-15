@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERO’S Boutique Launchpad</title>
+    
+    <!-- React y Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuración de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        input[type="range"] {
+            -webkit-appearance: none; appearance: none; width: 100%;
+            cursor: pointer; outline: none; border-radius: 9999px;
+            height: 8px; background: #d1d5db;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; height: 24px;
+            width: 24px; background-color: #D1A6A0; border-radius: 50%;
+            border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        input[type="range"]::-moz-range-thumb {
+            height: 24px; width: 24px; background-color: #D1A6A0;
+            border-radius: 50%; border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .faq-answer {
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .faq-answer.open {
+            max-height: 200px;
+        }
+        .content-prose h2 {
+            font-size: 1.875rem; margin-top: 2.5rem; margin-bottom: 1rem;
+            padding-bottom: 0.5rem; border-bottom: 1px solid #EAE3DC;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        .content-prose h3 {
+            font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem;
+            margin-bottom: 0.5rem; font-family: 'Cormorant Garamond', serif;
+        }
+        .content-prose p, .content-prose li {
+            line-height: 1.75; color: #555555;
+        }
+        .content-prose ul {
+            list-style-type: disc; padding-left: 1.5rem; margin-top: 1rem;
+        }
+        .content-prose strong { color: #333333; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Íconos SVG ---
+        const LeafIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#D1A6A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> );
+        const CloudIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#D1A6A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg> );
+        const UsersIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#D1A6A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg> );
+        const InstagramIcon = () => ( <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg> );
+        const WhatsAppIcon = () => ( <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M3.50002 12C3.50002 7.30558 7.3056 3.5 12 3.5C16.6944 3.5 20.5 7.30558 20.5 12C20.5 16.6944 16.6944 20.5 12 20.5C10.3278 20.5 8.77127 20.0182 7.45798 19.1861C7.21357 19.0313 6.91408 18.9899 6.63684 19.0726L3.75769 19.9319L4.84173 17.3953C4.96986 17.0955 4.94379 16.7521 4.77187 16.4751C3.9657 15.176 3.50002 13.6439 3.50002 12ZM12 1.5C6.20103 1.5 1.50002 6.20101 1.50002 12C1.50002 13.8381 1.97316 15.5683 2.80465 17.0727L1.08047 21.107C0.928048 21.4637 0.99561 21.8763 1.25382 22.1657C1.51203 22.4552 1.91432 22.5692 2.28599 22.4582L6.78541 21.1155C8.32245 21.9965 10.1037 22.5 12 22.5C17.799 22.5 22.5 17.799 22.5 12C22.5 6.20101 17.799 1.5 12 1.5ZM14.2925 14.1824L12.9783 15.1081C12.3628 14.7575 11.6823 14.2681 10.9997 13.5855C10.2901 12.8759 9.76402 12.1433 9.37612 11.4713L10.2113 10.7624C10.5697 10.4582 10.6678 9.94533 10.447 9.53028L9.38284 7.53028C9.23954 7.26097 8.98116 7.0718 8.68115 7.01654C8.38113 6.96129 8.07231 7.046 7.84247 7.24659L7.52696 7.52195C6.76823 8.18414 6.3195 9.2723 6.69141 10.3741C7.07698 11.5163 7.89983 13.314 9.58552 14.9997C11.3991 16.8133 13.2413 17.5275 14.3186 17.8049C15.1866 18.0283 16.008 17.7288 16.5868 17.2572L17.1783 16.7752C17.4313 16.5691 17.5678 16.2524 17.544 15.9269C17.5201 15.6014 17.3389 15.308 17.0585 15.1409L15.3802 14.1409C15.0412 13.939 14.6152 13.9552 14.2925 14.1824Z" /></svg> );
+        const ChevronIcon = ({ isOpen }) => ( <svg className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg> );
+
+        // --- Componentes ---
+
+        const Header = ({ showPrivacy }) => (
+          <header className="absolute top-0 left-0 right-0 z-20 py-6 px-4 sm:px-8 md:px-12">
+            <div className="container mx-auto flex justify-between items-center">
+              <div className="text-2xl font-serif text-[#333333]">ERO’S Boutique</div>
+              <nav className="hidden md:flex space-x-8 text-gray-600">
+                <a href="#collections" className="hover:text-[#333333]">Colecciones</a>
+                <a href="#philosophy" className="hover:text-[#333333]">Nuestra Filosofía</a>
+                <a href="#preference-form" className="hover:text-[#333333]">Únete</a>
+              </nav>
+              <a href="#preference-form" className="bg-[#D1A6A0] text-white px-6 py-2 rounded-xl hover:bg-opacity-90 transition">
+                Ayúdanos a Crear para Ti
+              </a>
+            </div>
+          </header>
+        );
+
+        const Hero = () => {
+            const [email, setEmail] = useState('');
+            
+            useEffect(() => {
+                const canvas = document.getElementById('lava-canvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let width = canvas.width = window.innerWidth;
+                let height = canvas.height = window.innerHeight;
+                let animationFrameId;
+
+                const handleResize = () => {
+                    width = canvas.width = window.innerWidth;
+                    height = canvas.height = window.innerHeight;
+                    init();
+                };
+                window.addEventListener('resize', handleResize);
+
+                class Ball {
+                    constructor(r, color) { this.r = r; this.color = color; this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 1.5; this.vy = (Math.random() - 0.5) * 1.5; }
+                    update() {
+                        if (this.x + this.r > width || this.x - this.r < 0) { this.vx *= -1; }
+                        if (this.y + this.r > height || this.y - this.r < 0) { this.vy *= -1; }
+                        this.x += this.vx; this.y += this.vy;
+                    }
+                }
+
+                let balls = [];
+                const numBalls = 6;
+                const colors = [{r: 209, g: 156, b: 150}, {r: 224, g: 217, b: 210}];
+
+                function init() {
+                    balls = [];
+                    for (let i = 0; i < numBalls; i++) { balls.push(new Ball(Math.random() * 100 + 100, colors[i % colors.length])); }
+                }
+
+                function animate() {
+                    if (width === 0 || height === 0) {
+                        animationFrameId = requestAnimationFrame(animate);
+                        return;
+                    }
+                    ctx.fillStyle = '#F8F7F4'; ctx.fillRect(0, 0, width, height);
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const data = imageData.data; const pixels = data.length / 4;
+                    balls.forEach(ball => ball.update());
+                    for (let i = 0; i < pixels; i++) {
+                        const x = i % width; const y = Math.floor(i / width);
+                        if (i % 4 !== 0) continue;
+                        let sum = 0, r_sum = 0, g_sum = 0, b_sum = 0;
+                        balls.forEach(ball => {
+                            const dx = x - ball.x; const dy = y - ball.y; const d2 = dx * dx + dy * dy;
+                            const influence = ball.r * ball.r / d2;
+                            sum += influence; r_sum += influence * ball.color.r; g_sum += influence * ball.color.g; b_sum += influence * ball.color.b;
+                        });
+                        if (sum > 0.95) {
+                            const idx = i * 4;
+                            data[idx] = r_sum / sum; data[idx + 1] = g_sum / sum; data[idx + 2] = b_sum / sum; data[idx + 3] = 255;
+                        }
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+                    animationFrameId = requestAnimationFrame(animate);
+                }
+
+                init(); animate();
+                return () => { window.removeEventListener('resize', handleResize); cancelAnimationFrame(animationFrameId); };
+            }, []);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if(email) { alert(`¡Gracias! Te notificaremos en ${email} cuando lancemos.`); setEmail(''); }
+            };
+            return (
+                <section className="relative min-h-screen bg-[#F8F7F4] flex items-center justify-center text-center overflow-hidden">
+                    <canvas id="lava-canvas" className="absolute top-0 left-0 w-full h-full z-0"></canvas>
+                    <div className="relative z-10 max-w-3xl px-4">
+                        <h1 className="text-5xl md:text-7xl font-serif text-[#333333] leading-tight">El Confort Redefinido. Próximamente.</h1>
+                        <p className="mt-6 text-lg text-gray-500 max-w-2xl mx-auto">Descubre una nueva era de ropa íntima, diseñada para cada cuerpo. Suavidad, estilo y sostenibilidad en cada pieza.</p>
+                        <form onSubmit={handleSubmit} className="mt-10 max-w-md mx-auto flex flex-col sm:flex-row gap-4">
+                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Tu correo electrónico" className="flex-grow px-5 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#D1A6A0] focus:outline-none" required />
+                            <button type="submit" className="bg-[#333333] text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition">Notifícame</button>
+                        </form>
+                    </div>
+                </section>
+            );
+        };
+        
+        const Collections = () => {
+            const collections = [
+                { title: "Para Ella", description: "Siluetas delicadas que celebran tu forma.", imageUrl: "https://images.unsplash.com/photo-1611808673114-b3163c5a4b7c?q=80&w=1887&auto=format&fit=crop" },
+                { title: "Para Él", description: "Cortes clásicos con telas innovadoras.", imageUrl: "https://images.unsplash.com/photo-1622979205933-4d34c1a9a849?q=80&w=1887&auto=format&fit=crop" },
+                { title: "Para los Pequeños", description: "Suavidad y durabilidad para el juego diario.", imageUrl: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2070&auto=format&fit=crop" }
+            ];
+            return (
+                <section id="collections" className="py-20 bg-white px-4 sm:px-8">
+                    <div className="container mx-auto text-center">
+                        <h2 className="text-4xl md:text-5xl font-serif text-[#333333]">Diseñado para Todos</h2>
+                        <div className="mt-12 grid md:grid-cols-3 gap-8">
+                            {collections.map((collection, index) => (
+                                <div key={index} className="group">
+                                    <div className="overflow-hidden rounded-xl"><img src={collection.imageUrl} alt={`[Imagen de la colección ${collection.title}]`} className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500" /></div>
+                                    <h3 className="mt-6 text-2xl font-serif">{collection.title}</h3>
+                                    <p className="mt-2 text-gray-500">{collection.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const ValueProposition = () => {
+            const features = [
+                { icon: <LeafIcon />, title: "Telas Sostenibles", text: "Materiales ecológicos que cuidan de tu piel y del planeta." },
+                { icon: <CloudIcon />, title: "Comodidad Absoluta", text: "Diseños sin costuras molestas, pensados para usarse todo el día." },
+                { icon: <UsersIcon />, title: "Diseño Inclusivo", text: "Tallas y cortes para celebrar la diversidad de todos los cuerpos." }
+            ];
+            const sectionRef = useRef(null);
+            const [isVisible, setIsVisible] = useState(false);
+            useEffect(() => {
+                const observer = new IntersectionObserver(([entry]) => {
+                    if (entry.isIntersecting) { setIsVisible(true); observer.unobserve(entry.target); }
+                }, { threshold: 0.2 });
+                if (sectionRef.current) { observer.observe(sectionRef.current); }
+                return () => { if (sectionRef.current) { observer.unobserve(sectionRef.current); } };
+            }, []);
+            return (
+                <section ref={sectionRef} id="philosophy" className="py-20 bg-[#F8F7F4] px-4 sm:px-8">
+                    <div className="container mx-auto text-center">
+                        <h2 className="text-4xl md:text-5xl font-serif text-[#333333]">Más que Ropa Interior</h2>
+                        <div className="mt-16 grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
+                            {features.map((feature, index) => (
+                                <div key={index} className={`flex flex-col items-center p-6 rounded-2xl transition-all duration-500 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} hover:scale-105 hover:shadow-2xl hover:bg-white`} style={{ transitionDelay: `${index * 150}ms` }}>
+                                    {feature.icon}
+                                    <h3 className="mt-4 text-xl font-semibold text-[#333333]">{feature.title}</h3>
+                                    <p className="mt-2 text-gray-500">{feature.text}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const PreferenceForm = () => {
+            const [step, setStep] = useState(1);
+            const totalSteps = 9;
+            const [formData, setFormData] = useState({
+                preferredCategory: '', ageRange: '',
+                preferredStyles: [], preferredColors: [],
+                shoppingHabits: [], pricePoint: '40', purchaseFrequency: '',
+                valuedAttribute: '',
+                firstName: '', lastName: '', email: '', phoneNumber: ''
+            });
+
+            const handleSelect = (type, value, isMultiSelect = false) => {
+                if (isMultiSelect) {
+                    setFormData(prev => ({ ...prev, [type]: prev[type].includes(value) ? prev[type].filter(item => item !== value) : [...prev[type], value] }));
+                } else {
+                    setFormData(prev => ({ ...prev, [type]: value }));
+                }
+            };
+            
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                console.log("Datos del formulario:", formData);
+                alert("¡Gracias por tus preferencias! Te mantendremos informado.");
+                setStep(1);
+                setFormData({ preferredCategory: '', ageRange: '', preferredStyles: [], preferredColors: [], shoppingHabits: [], pricePoint: '40', purchaseFrequency: '', valuedAttribute: '', firstName: '', lastName: '', email: '', phoneNumber: '' });
+            };
+
+            const nextStep = () => setStep(prev => prev < totalSteps ? prev + 1 : prev);
+            const prevStep = () => setStep(prev => prev > 1 ? prev - 1 : prev);
+
+            const stylesData = { 'Para Ella': [{name: 'Bralette', img: 'https://images.unsplash.com/photo-1585149707952-3c99a383e329?q=80&w=1887'}, {name: 'Deportivo', img: 'https://images.unsplash.com/photo-1533852101475-586d33a5979c?q=80&w=1887'}, {name: 'Pijama', img: 'https://images.unsplash.com/photo-1585337839257-8c28a2bc4413?q=80&w=1887'}], 'Para Él': [{name: 'Boxer', img: 'https://images.unsplash.com/photo-1621330397433-8a6b42784391?q=80&w=1887'}, {name: 'Brief', img: 'https://images.unsplash.com/photo-1611858443657-479a07353a4e?q=80&w=1887'}, {name: 'Pijama', img: 'https://images.unsplash.com/photo-1620327467533-34f8a37f597a?q=80&w=1887'}], 'Para los Pequeños': [{name: 'Básico', img: 'https://images.unsplash.com/photo-1604467795338-02b2c26ay288?q=80&w=1887'}, {name: 'Estampado', img: 'https://images.unsplash.com/photo-1519238263530-99bdd1965341?q=80&w=1887'}, {name: 'Pijama', img: 'https://images.unsplash.com/photo-1521573218323-b3d605154f39?q=80&w=1887'}], };
+            const colorsData = [{name: 'Neutros', hex: '#D1C4E9'}, {name: 'Pasteles', hex: '#BBDEFB'}, {name: 'Vibrantes', hex: '#FFAB91'}];
+            const categories = [{ name: 'Para Ella', emoji: '♀️' }, { name: 'Para Él', emoji: '♂️' }, { name: 'Para los Pequeños', emoji: '🧸' }];
+            const ageRanges = ['18-24', '25-34', '35-44', '45+'];
+            const habits = ['Tiendas Online', 'Redes Sociales', 'Tiendas Físicas'];
+            const frequencies = ['Mensualmente', 'Cada 3-6 meses', 'Anualmente'];
+            const attributes = ['Comodidad', 'Estilo / Diseño', 'Precio', 'Sostenibilidad'];
+
+            const progress = (step / totalSteps) * 100;
+
+            const renderStep = () => {
+                switch(step) {
+                    case 1: return ( <div className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-6">¿Para quién compras?</h3> <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> {categories.map(cat => ( <button key={cat.name} onClick={() => {handleSelect('preferredCategory', cat.name); nextStep();}} className={`p-4 rounded-xl text-lg transition flex items-center justify-center gap-x-2 bg-white hover:bg-[#F8F7F4]`}><span>{cat.emoji}</span> {cat.name}</button> ))} </div> </div> );
+                    case 2: return ( <div className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-6">¿Cuál es tu rango de edad?</h3> <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {ageRanges.map(age => ( <button key={age} onClick={() => {handleSelect('ageRange', age); nextStep();}} className={`p-4 rounded-xl text-lg transition bg-white hover:bg-[#F8F7F4]`}>{age}</button> ))} </div> </div> );
+                    case 3: return ( <div className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-1">¿Qué estilos prefieres?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona al menos uno)</p> <div className="grid grid-cols-2 md:grid-cols-3 gap-4"> {stylesData[formData.preferredCategory].map(style => ( <div key={style.name} onClick={() => handleSelect('preferredStyles', style.name, true)} className={`rounded-xl overflow-hidden cursor-pointer border-4 transition-all duration-200 ${formData.preferredStyles.includes(style.name) ? 'border-[#D1A6A0] scale-105' : 'border-transparent'}`}><img src={`${style.img}&auto=format&fit=crop&w=400`} alt={`[Imagen de un ${style.name}]`} className="h-48 w-full object-cover" /><p className="p-2 bg-white">{style.name}</p></div> ))} </div> </div> );
+                    case 4: return ( <div className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-1">¿Qué colores te inspiran?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona al menos uno)</p> <div className="flex justify-center gap-4"> {colorsData.map(color => ( <div key={color.name} onClick={() => handleSelect('preferredColors', color.name, true)} className={`p-4 rounded-xl cursor-pointer border-4 transition-all duration-200 ${formData.preferredColors.includes(color.name) ? 'border-[#D1A6A0] scale-105' : 'border-transparent'}`}><div className="w-24 h-24 rounded-full" style={{backgroundColor: color.hex}}></div><p className="mt-2">{color.name}</p></div> ))} </div> </div> );
+                    case 5: return ( <div className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-1">¿Dónde sueles comprar?</h3> <p className="text-sm text-gray-500 mb-4">(Selecciona los que apliquen)</p> <div className="flex flex-wrap justify-center gap-4"> {habits.map(habit => ( <button key={habit} onClick={() => handleSelect('shoppingHabits', habit, true)} className={`p-3 px-6 rounded-full text-lg transition ${formData.shoppingHabits.includes(habit) ? 'bg-[#D1A6A0] text-white shadow-lg scale-105' : 'bg-white hover:bg-[#F8F7F4]'}`}>{habit}</button>))} </div> </div> );
+                    case 6: return ( <div className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-4">¿Cuánto sueles gastar por prenda?</h3> <div className="w-full max-w-md mx-auto pt-8"> <p className="text-5xl font-bold text-[#333333] mb-6">${formData.pricePoint}</p> <input type="range" min="10" max="100" step="5" value={formData.pricePoint} onChange={(e) => handleSelect('pricePoint', e.target.value)} /> <div className="flex justify-between text-sm text-gray-500 mt-2 px-2"> <span>$10</span> <span>$100+</span> </div> </div> </div> );
+                    case 7: return ( <div className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-6">¿Con qué frecuencia compras?</h3> <div className="flex flex-wrap justify-center gap-4"> {frequencies.map(freq => ( <button key={freq} onClick={() => {handleSelect('purchaseFrequency', freq); nextStep();}} className={`p-3 px-6 rounded-full text-lg transition bg-white hover:bg-[#F8F7F4]`}>{freq}</button>))} </div> </div> );
+                    case 8: return ( <div className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-6">¿Qué es lo más importante para ti?</h3> <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {attributes.map(attr => ( <button key={attr} onClick={() => {handleSelect('valuedAttribute', attr); nextStep();}} className={`p-6 rounded-xl text-lg transition bg-white hover:bg-[#F8F7F4]`}>{attr}</button>))} </div> </div> );
+                    case 9: return ( <form onSubmit={handleSubmit} className="animate-fade-in"> <h3 className="text-2xl font-semibold mb-6">¡Únete a la Comunidad!</h3> <p className="text-gray-500 mb-6">Déjanos tus datos para ser el primero en saber sobre nuestro lanzamiento.</p> <div className="max-w-md mx-auto space-y-4"> <div className="flex gap-4"> <input type="text" value={formData.firstName} onChange={(e) => handleSelect('firstName', e.target.value)} placeholder="Nombre" className="w-full px-5 py-3 rounded-lg border border-gray-300" required /> <input type="text" value={formData.lastName} onChange={(e) => handleSelect('lastName', e.target.value)} placeholder="Apellido" className="w-full px-5 py-3 rounded-lg border border-gray-300" required /> </div> <input type="email" value={formData.email} onChange={(e) => handleSelect('email', e.target.value)} placeholder="Tu correo electrónico" className="w-full px-5 py-3 rounded-lg border border-gray-300" required /> <input type="tel" value={formData.phoneNumber} onChange={(e) => handleSelect('phoneNumber', e.target.value)} placeholder="Número de teléfono (opcional)" className="w-full px-5 py-3 rounded-lg border border-gray-300" /> </div> </form> );
+                    default: return null;
+                }
+            };
+
+            const isNextDisabled = () => {
+                switch(step) {
+                    case 3: return formData.preferredStyles.length === 0;
+                    case 4: return formData.preferredColors.length === 0;
+                    case 5: return formData.shoppingHabits.length === 0;
+                    case 6: return !formData.pricePoint;
+                    default: return false;
+                }
+            };
+
+            return (
+                <section id="preference-form" className="py-20 bg-[#EAE3DC] px-4 sm:px-8">
+                    <div className="container mx-auto text-center max-w-4xl">
+                        <h2 className="text-4xl md:text-5xl font-serif text-[#333333]">Ayúdanos a Crear la Colección Perfecta</h2>
+                        <div className="mt-8 w-full bg-gray-200 rounded-full h-2.5">
+                            <div className="bg-[#D1A6A0] h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                        </div>
+                        <div className="mt-4 bg-white/50 p-8 rounded-2xl shadow-lg">
+                            {renderStep()}
+                        </div>
+                        <div className="mt-6 flex justify-center gap-4">
+                            {step > 1 && ( <button onClick={prevStep} className="bg-white text-gray-700 px-8 py-3 rounded-lg">Anterior</button> )}
+                            {step < 9 && ![1,2,7,8].includes(step) && ( <button onClick={nextStep} disabled={isNextDisabled()} className="bg-[#333333] text-white px-8 py-3 rounded-lg transition disabled:bg-gray-400">Siguiente</button> )}
+                             {step === 9 && ( <button onClick={handleSubmit} disabled={!formData.firstName || !formData.lastName || !formData.email} className="bg-[#D1A6A0] text-white px-8 py-3 rounded-lg transition disabled:bg-gray-400">Enviar y Finalizar</button> )}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const FaqSection = () => {
+            const [openIndex, setOpenIndex] = useState(null);
+
+            const faqData = [
+                {
+                    question: "¿Cómo funciona el modelo 'on-demand' o a contra pedido?",
+                    answer: "Significa que cada pieza se crea especialmente para ti una vez que realizas tu pedido. Esto nos permite reducir el desperdicio, garantizar la máxima calidad y ofrecerte un producto único. No mantenemos un gran inventario, producimos de manera consciente."
+                },
+                {
+                    question: "¿Cuánto tiempo tardará en llegar mi pedido?",
+                    answer: "Dado que cada prenda se confecciona bajo demanda, nuestro tiempo de producción es de aproximadamente 7 a 10 días hábiles. Una vez que tu pieza esté lista, recibirás una notificación de envío con el tiempo de entrega estimado por la paquetería."
+                },
+                {
+                    question: "¿Puedo devolver o cambiar una prenda?",
+                    answer: "Debido a la naturaleza íntima y personalizada de nuestros productos hechos a contra pedido, no podemos aceptar devoluciones. Sin embargo, si tu prenda llega con algún defecto de fabricación, por favor contáctanos de inmediato para encontrar una solución."
+                },
+                {
+                    question: "¿Qué significa que las telas son sostenibles?",
+                    answer: "Utilizamos materiales de bajo impacto ambiental, como algodón orgánico, Tencel™ o telas recicladas. Nos asociamos con proveedores que comparten nuestros valores de producción ética y cuidado del planeta, asegurando que cada pieza sea tan amable contigo como con el medio ambiente."
+                },
+                {
+                    question: "¿Cómo sé cuál es mi talla correcta?",
+                    answer: "Próximamente, junto con nuestro lanzamiento, publicaremos una guía de tallas detallada con instrucciones claras sobre cómo medirte para encontrar el ajuste perfecto. ¡Suscríbete a nuestra lista para ser el primero en saberlo!"
+                }
+            ];
+
+            const handleToggle = (index) => {
+                setOpenIndex(openIndex === index ? null : index);
+            };
+
+            return (
+                <section id="faq" className="py-20 bg-[#F8F7F4] px-4 sm:px-8">
+                    <div className="container mx-auto max-w-4xl">
+                        <h2 className="text-4xl md:text-5xl font-serif text-[#333333] text-center mb-12">Preguntas Frecuentes</h2>
+                        <div className="space-y-4">
+                            {faqData.map((item, index) => (
+                                <div key={index} className="bg-white/80 rounded-xl shadow-sm">
+                                    <button 
+                                        onClick={() => handleToggle(index)}
+                                        className="w-full flex justify-between items-center text-left p-6"
+                                    >
+                                        <span className="text-lg font-semibold text-[#333333]">{item.question}</span>
+                                        <ChevronIcon isOpen={openIndex === index} />
+                                    </button>
+                                    <div className={`faq-answer ${openIndex === index ? 'open' : ''}`}>
+                                        <p className="text-gray-600 px-6 pb-6">{item.answer}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const Footer = ({ showPrivacy }) => {
+            return (
+                <footer id="join" className="bg-[#F8F7F4] py-12 px-4 sm:px-8">
+                    <div className="container mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                        <div className="text-2xl font-serif text-[#333333] mb-6 md:mb-0">ERO’S Boutique</div>
+                        <div className="flex space-x-6 text-gray-500 mb-6 md:mb-0">
+                            <a href="#faq" className="hover:text-[#333333]">Preguntas Frecuentes</a>
+                            <div className="relative group">
+                                <span className="hover:text-[#333333] cursor-pointer">Contacto</span>
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-xl shadow-lg flex gap-x-4">
+                                    <a href="https://instagram.com" target="_blank" className="text-gray-600 hover:text-[#D1A6A0] transition-colors"><InstagramIcon /></a>
+                                    <a href="https://wa.me/1234567890" target="_blank" className="text-gray-600 hover:text-green-500 transition-colors"><WhatsAppIcon /></a>
+                                </div>
+                            </div>
+                            <span onClick={showPrivacy} className="hover:text-[#333333] cursor-pointer">Política de Privacidad</span>
+                        </div>
+                        <div className="flex space-x-4 text-[#333333]"></div>
+                    </div>
+                </footer>
+            );
+        };
+        
+        const PrivacyPolicyPage = ({ showLaunchpad }) => (
+            <div className="animate-fade-in bg-[#F8F7F4] py-12 px-4 sm:px-8">
+                <div className="max-w-4xl mx-auto content-prose">
+                    <div className="text-center mb-12">
+                        <h1 className="text-5xl">Política de Privacidad</h1>
+                        <p className="mt-2 text-sm text-gray-500">Última actualización: 15 de agosto de 2025</p>
+                    </div>
+                    <h2>1. ¿Qué Información Recopilamos?</h2>
+                    <p>A través de nuestro formulario de lanzamiento, recopilamos la siguiente información con el fin de realizar un estudio de mercado y crear productos que se ajusten a tus necesidades:</p>
+                    <h3>Datos de Contacto:</h3>
+                    <ul>
+                        <li>Nombre y Apellido</li>
+                        <li>Dirección de correo electrónico</li>
+                        <li>Número de teléfono (opcional)</li>
+                    </ul>
+                    <h3>Datos Demográficos:</h3>
+                    <ul>
+                        <li>Rango de edad (ej. 18-24, 25-34, etc.)</li>
+                    </ul>
+                    <h3>Datos de Preferencias:</h3>
+                    <ul>
+                        <li><strong>Categoría de Interés:</strong> Para quién compras (Damas, Caballeros, Niños).</li>
+                        <li><strong>Estilos Preferidos:</strong> Tipos de prendas que te interesan (ej. Bralette, Boxer, Pijama).</li>
+                        <li><strong>Colores Preferidos:</strong> Paletas de colores que te inspiran (ej. Neutros, Pasteles).</li>
+                        <li><strong>Hábitos de Compra:</strong> Dónde sueles comprar ropa íntima.</li>
+                        <li><strong>Punto de Precio:</strong> Rango de precios que consideras para una prenda.</li>
+                        <li><strong>Frecuencia de Compra:</strong> Con qué frecuencia adquieres ropa íntima.</li>
+                        <li><strong>Atributos Valorados:</strong> Qué es lo más importante para ti al elegir una prenda (Comodidad, Estilo, etc.).</li>
+                    </ul>
+                    <h2>2. ¿Cómo Usamos Tu Información?</h2>
+                    <p>La información que nos proporcionas se utiliza exclusivamente para los siguientes propósitos:</p>
+                    <ul>
+                        <li><strong>Estudio de Mercado:</strong> Analizar las tendencias y preferencias de nuestros futuros clientes para diseñar y lanzar una colección que realmente deseen.</li>
+                        <li><strong>Comunicación de Lanzamiento:</strong> Notificarte por correo electrónico y/o SMS (si proporcionaste tu número) sobre el lanzamiento oficial de nuestra tienda online, así como de colecciones y productos relevantes según tus preferencias.</li>
+                        <li><strong>Ofertas Exclusivas:</strong> Enviarte promociones y acceso anticipado como agradecimiento por ayudarnos a construir nuestra marca.</li>
+                    </ul>
+                    <p><strong>Nunca venderemos tus datos personales a terceros.</strong></p>
+                    <h2>3. ¿Cómo Protegemps Tu Información?</h2>
+                    <p>Implementamos medidas de seguridad técnicas y organizativas para proteger tus datos personales contra el acceso no autorizado, la alteración, la divulgación o la destrucción. El acceso a tu información está restringido a personal autorizado de ERO’S Boutique que necesita conocerla para los fines descritos en esta política.</p>
+                    <h2>4. Tus Derechos</h2>
+                    <p>Tienes derecho a:</p>
+                    <ul>
+                        <li><strong>Acceder</strong> a los datos personales que tenemos sobre ti.</li>
+                        <li><strong>Rectificar</strong> cualquier información incorrecta o incompleta.</li>
+                        <li><strong>Solicitar la eliminación</strong> de tus datos de nuestra base de datos.</li>
+                        <li><strong>Darte de baja</strong> de nuestras comunicaciones de marketing en cualquier momento, utilizando el enlace proporcionado en cada correo electrónico.</li>
+                    </ul>
+                    <p>Para ejercer cualquiera de estos derechos, por favor contáctanos a través de la información proporcionada al final de esta política.</p>
+                    <h2>5. Cambios a esta Política de Privacidad</h2>
+                    <p>Podemos actualizar esta Política de Privacidad ocasionalmente. Te notificaremos de cualquier cambio publicando la nueva política en esta página. Te recomendamos revisarla periódicamente.</p>
+                    <h2>6. Contáctanos</h2>
+                    <p>Si tienes alguna pregunta sobre esta Política de Privacidad o sobre cómo manejamos tus datos, no dudes en contactarnos en:</p>
+                    <p><strong>ERO’S Boutique</strong><br />
+                    Correo electrónico: <a href="mailto:privacidad@erosboutique.com" className="text-[#D1A6A0] hover:underline">privacidad@erosboutique.com</a></p>
+                    <div className="text-center mt-12">
+                        <button onClick={showLaunchpad} className="bg-[#333333] text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition">Volver a la Página Principal</button>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- Componente Principal de la App ---
+        function App() {
+            const [currentPage, setCurrentPage] = useState('launchpad');
+
+            const showPrivacy = () => setCurrentPage('privacy');
+            const showLaunchpad = () => setCurrentPage('launchpad');
+
+            if (currentPage === 'privacy') {
+                return <PrivacyPolicyPage showLaunchpad={showLaunchpad} />;
+            }
+
+            return (
+                <div className="bg-[#F8F7F4] text-[#333333] animate-fade-in">
+                  <Header />
+                  <main>
+                    <Hero />
+                    <Collections />
+                    <ValueProposition />
+                    <PreferenceForm />
+                    <FaqSection />
+                  </main>
+                  <Footer showPrivacy={showPrivacy} />
+                </div>
+            );
+        }
+
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
