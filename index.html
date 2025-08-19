@@ -204,9 +204,9 @@
         
         const Collections = () => {
             const collections = [
-                { title: "Para Ella", description: "Siluetas delicadas que celebran tu forma.", imageUrl: "https://images.unsplash.com/photo-1611808673114-b3163c5a4b7c?q=80&w=1887&auto=format&fit=crop" },
-                { title: "Para Él", description: "Cortes clásicos con telas innovadoras.", imageUrl: "https://images.unsplash.com/photo-1622979205933-4d34c1a9a849?q=80&w=1887&auto=format&fit=crop" },
-                { title: "Para los Pequeños", description: "Suavidad y durabilidad para el juego diario.", imageUrl: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2070&auto=format&fit=crop" }
+                { title: "Para Ella", description: "Siluetas delicadas que celebran tu forma.", imageUrl: "./src/images/Para_Ellas_Launchpad_Jessica.jpg" },
+                { title: "Para Él", description: "Cortes clásicos con telas innovadoras.", imageUrl: "./src/images/Para_El_Launchpad__Jessica.jpg" },
+                { title: "Para los Pequeños", description: "Suavidad y durabilidad para el juego diario.", imageUrl: "./src/images/Diseño sin título.png" }
             ];
             return (
                 <section id="collections" className="py-20 bg-white px-4 sm:px-8">
@@ -405,8 +405,8 @@
         const FaqSection = () => {
             const [openIndex, setOpenIndex] = useState(null);
             const faqData = [
-                { question: "¿Cómo funciona el modelo 'on-demand' o a contra pedido?", answer: "Significa que cada pieza se crea especialmente para ti una vez que realizas tu pedido. Esto nos permite reducir el desperdicio, garantizar la máxima calidad y ofrecerte un producto único." },
-                { question: "¿Cuánto tiempo tardará en llegar mi pedido?", answer: "Nuestro tiempo de producción es de aproximadamente 7 a 10 días hábiles. Una vez que tu pieza esté lista, recibirás una notificación de envío." },
+                { question: "¿Cómo funciona el modelo 'on-demand' o a contra pedido?", answer: "Significa que una vez se confirma tu compra, encargamos tu pieza directamente a nuestros proveedores."},
+                { question: "¿Cuánto tiempo tardará en llegar mi pedido?", answer: "Nuestro tiempo de envio es de aproximadamente 10 a 15 días hábiles. Una vez que tu pedido llegue a nuestro stock, recibirás una notificación de envío. Con este proceso garantizamos una prenda exclusiva y de alta calidad." },
                 { question: "¿Puedo devolver o cambiar una prenda?", answer: "Debido a la naturaleza íntima y personalizada de nuestros productos, no podemos aceptar devoluciones. Sin embargo, si tu prenda llega con algún defecto, contáctanos." },
                 { question: "¿Qué significa que las telas son sostenibles?", answer: "Utilizamos materiales de bajo impacto ambiental, como algodón orgánico o telas recicladas, que cuidan de tu piel y del planeta." },
                 { question: "¿Cómo sé cuál es mi talla correcta?", answer: "Junto con nuestro lanzamiento, publicaremos una guía de tallas detallada. ¡Suscríbete para ser el primero en saberlo!" }
@@ -443,7 +443,7 @@
                         <div className="relative group">
                             <span className="hover:text-[#4E443C] cursor-pointer">Contacto</span>
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white p-4 rounded-xl shadow-lg flex gap-x-4">
-                                <a href="https://instagram.com" target="_blank" className="text-gray-600 hover:text-[#C7A78E] transition-colors"><InstagramIcon /></a>
+                                <a href="https://www.instagram.com/by.eros.ar?igsh=MXVuamNkY3dlOTBzeA==" target="_blank" className="text-gray-600 hover:text-[#C7A78E] transition-colors"><InstagramIcon /></a>
                                 <a href="https://wa.me/1234567890" target="_blank" className="text-gray-600 hover:text-green-500 transition-colors"><WhatsAppIcon /></a>
                             </div>
                         </div>
@@ -461,7 +461,7 @@
                         <p className="mt-2 text-sm text-gray-500">Última actualización: 15 de agosto de 2025</p>
                     </div>
                     <h2>1. ¿Qué Información Recopilamos?</h2>
-                    <p>A través de nuestro formulario de lanzamiento, recopilamos la siguiente información con el fin de realizar un estudio de mercado y crear productos que se ajusten a tus necesidades:</p>
+                    <p>A través de nuestro formulario de lanzamiento, recopilamos la siguiente información con el fin de realizar un estudio de mercado y distribuir productos que se ajusten a tus necesidades:</p>
                     <h3>Datos de Contacto:</h3>
                     <ul>
                         <li>Nombre y Apellido</li>
@@ -505,8 +505,12 @@
                     <p>Podemos actualizar esta Política de Privacidad ocasionalmente. Te notificaremos de cualquier cambio publicando la nueva política en esta página. Te recomendamos revisarla periódicamente.</p>
                     <h2>6. Contáctanos</h2>
                     <p>Si tienes alguna pregunta sobre esta Política de Privacidad o sobre cómo manejamos tus datos, no dudes en contactarnos en:</p>
-                    <p><strong>ERO’S Boutique</strong><br />
-                    Correo electrónico: <a href="mailto:privacidad@erosboutique.com" className="text-[#C7A78E] hover:underline">privacidad@erosboutique.com</a></p>
+                    <p><strong>ERO’S Boutique Argentina</strong><br />
+                    Correo electrónico: <a href="mailto:by.eros.ar@gmail.com" className="text-[#C7A78E] hover:underline">privacidad@erosboutique.com</a><br/>
+                    Teléfono: (+54)9-11-6449-5458</p>
+                    <p><strong>ERO’S Boutique Venezuela</strong><br />
+                    Correo electrónico: <a href="mailto:coomingsoon@gmail.com" className="text-[#C7A78E] hover:underline">privacidad@erosboutique.com</a><br/>
+                    Teléfono: (+58)coomingsoon</p>
                     <div className="text-center mt-12">
                         <button onClick={showLaunchpad} className="bg-[#4E443C] text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition">Volver a la Página Principal</button>
                     </div>
