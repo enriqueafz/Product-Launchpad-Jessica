@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EROS - Una Experiencia Inmersiva</title>
     
-    <!-- React y Babel -->
+    {/*-- React y Babel --*/}
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Tailwind CSS -->
+    {/*-- Tailwind CSS --*/}
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
+    {/*-- Google Fonts --*/}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
@@ -22,13 +22,17 @@
         body, html { margin: 0; padding: 0; background-color: #0a0a0a; font-family: 'Montserrat', sans-serif; color: #f0f0f0; }
         .scene { height: 100vh; width: 100%; overflow: hidden; position: fixed; top: 0; left: 0; transition: opacity 1.5s ease-in-out; }
         
+        /* --- Estilo para el cursor de escritura --- */
         .blinking-cursor {
             font-weight: 500;
             color: #C7A78E;
             animation: blink-caret .75s step-end infinite;
         }
 
-        @keyframes blink-caret { from, to { color: transparent } 50% { border-color: #C7A78E; } }
+        @keyframes blink-caret { 
+            from, to { color: transparent } 
+            50% { border-color: #C7A78E; } 
+        }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -60,11 +64,27 @@
         const { useState, useEffect, useRef, useCallback } = React;
 
         // --- Datos ---
-        const underwearCollection = [ { id: 1, title: "Para Ella", description: "Siluetas delicadas que celebran tu forma.", imageUrl: "./src/images/Para_Ellas_Launchpad_Jessica.jpg" }, { id: 2, title: "Para Él", description: "Cortes clásicos con telas innovadoras.", imageUrl: "./src/images/Para_El_Launchpad__Jessica.jpg" }, { id: 3, title: "Para Todes", description: "Diseños inclusivos para cada cuerpo.", imageUrl: "Para_Los_Peques_Launchpad_Jessica.png" }, { id: 4, title: "Colección Encaje", description: "Sensualidad y confort en cada detalle.", imageUrl: "./src/images/Encaje.png" }, { id: 5, title: "Básicos de Algodón", description: "La comodidad que necesitas para tu día a día.", imageUrl: "./src/images/dealgodon.jpg" }, { id: 6, title: "Ropa Deportiva", description: "Soporte y flexibilidad para tus entrenamientos.", imageUrl: "./src/images/deportiva.jpg" }, ];
-        const toysCollection = [ { id: 1, title: "Vibrador Sutil", description: "Diseño elegante para una estimulación precisa.", imageUrl: "./src/images/vibradores.jpg" }, { id: 2, title: "Masajeador Wand", description: "Potencia y versatilidad para un placer profundo.", imageUrl: "./src/images/cerca-de-juguete-sexual.jpg" }, { id: 3, title: "Anillo Vibrador", description: "Intensifica el placer en pareja.", imageUrl: "anillos.jpg" }, { id: 4, title: "Huevo a Distancia", description: "Controla la diversión sin importar dónde estés.", imageUrl: ".src/images/huevo.jpg" }, ];
+        const underwearCollection = [ { id: 1, title: "Para Ella", description: "Siluetas delicadas que celebran tu forma.", imageUrl: "./src/images/Para_Ellas_Launchpad_Jessica.jpg" }, { id: 2, title: "Para Él", description: "Cortes clásicos con telas innovadoras.", imageUrl: "./src/images/Para_El_Launchpad__Jessica.jpg" }, { id: 3, title: "Para Los Peques", description: "Diseños inclusivos hasta para los mas pequeños.", imageUrl: "./src/images/Para_Los_Peques_Launchpad_Jessica.png" }, { id: 4, title: "Colección Encaje", description: "Sensualidad y confort en cada detalle.", imageUrl: "./src/images/Encaje.png" }, { id: 5, title: "Básicos de Algodón", description: "La comodidad que necesitas para tu día a día.", imageUrl: "./src/images/dealgodon.jpg" }, { id: 6, title: "Ropa Deportiva", description: "Soporte y flexibilidad para tus entrenamientos.", imageUrl: "./src/images/deportiva.jpg" }, ];
+        const toysCollection = [ { id: 1, title: "Vibrador Sutil", description: "Diseño elegante para una estimulación precisa.", imageUrl: "./src/images/vibradores.jpg" }, { id: 2, title: "Masajeador Wand", description: "Potencia y versatilidad para un placer profundo.", imageUrl: "./src/images/cerca-de-juguete-sexual.jpg" }, { id: 3, title: "Anillo Vibrador", description: "Intensifica el placer en pareja.", imageUrl: "./src/images/anillos.jpg" }, { id: 4, title: "Huevo a Distancia", description: "Controla la diversión sin importar dónde estés.", imageUrl: "./src/images/huevo.jpg" }, ];
         const faqData = [ { question: "¿Cómo funciona el modelo 'on-demand' o a contra pedido?", answer: "Significa que una vez se confirma tu compra, encargamos tu pieza directamente a nuestros proveedores."}, { question: "¿Cuánto tiempo tardará en llegar mi pedido?", answer: "Nuestro tiempo de envio es de aproximadamente 15 días hábiles. Una vez que tu pedido llegue a nuestro stock, recibirás una notificación de envío. Con este proceso garantizamos una prenda exclusiva y de alta calidad." }, { question: "¿Puedo devolver o cambiar una prenda?", answer: "Debido a la naturaleza íntima y personalizada de nuestros productos, no podemos aceptar devoluciones. Sin embargo, si tu prenda llega con algún defecto, contáctanos." }, { question: "¿Qué significa que las telas son sostenibles?", answer: "Utilizamos materiales de bajo impacto ambiental, como algodón orgánico o telas recicladas, que cuidan de tu piel y del planeta." }, { question: "¿Cómo sé cuál es mi talla correcta?", answer: "Junto con nuestro lanzamiento, publicaremos una guía de tallas detallada. ¡Suscríbete para ser el primero en saberlo!" } ];
         const womanColorOptions = [ { text: 'Neutros/Tierra', value: 'neutrals', color: '#EAE0D5' }, { text: 'Pasteles', value: 'pastels', color: '#FADADD' }, { text: 'Vibrantes', value: 'vibrant', color: '#E56B6F' }, { text: 'Clásicos', value: 'classic_woman', color: '#6B5E54' }, { text: 'Tonos Joya', value: 'jewel', color: '#582C4D' }, { text: 'Florales', value: 'floral', color: '#FFC0CB' }, { text: 'Animal Print', value: 'animal', color: '#D4A276' }, { text: 'Metálicos', value: 'metallic', color: '#C0C0C0' }, { text: 'Neón', value: 'neon', color: '#39FF14' }, { text: 'Degradados', value: 'gradient', color: '#B24592' } ];
         const manColorOptions = [ { text: 'Clásicos (B/N/G)', value: 'classic_man', color: '#374151' }, { text: 'Tonos Sólidos', value: 'solid', color: '#4F6D7A' }, { text: 'Estampados', value: 'patterns', color: '#BFBFBF' }, { text: 'Tonos Tierra', value: 'earth', color: '#D4A276' }, { text: 'Colores Vivos', value: 'vivid', color: '#EF4444' }, { text: 'Rayas y Cuadros', value: 'stripes_checks', color: '#60A5FA' }, { text: 'Divertidos', value: 'fun', color: '#FBBF24' }, { text: 'Tonos Militares', value: 'military', color: '#556B2F' }, { text: 'Azules/Verdes', value: 'blue_green', color: '#10B981' }, { text: 'Tonos Pastel', value: 'pastel_man', color: '#A7F3D0' } ];
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbylU-f5oA5Rrk_y2pV7pb6xevuek6LqlOdm_Kpfwf4URuYTZSf_YAV9OcOlouixXk8PdA/exec';
+        const questions = [
+            { id: 'interest', text: 'Para empezar, ¿qué te interesa descubrir?', options: [ { text: '🩲 Ropa Íntima', value: 'underwear' }, { text: '✨ Mundo Sensorial', value: 'sensorial' }, { text: '💖 Ambos', value: 'both' } ] },
+            { id: 'underwearFor', text: 'Perfecto. ¿Para quién es la búsqueda?', options: [ { text: 'Para Ella', value: 'woman' }, { text: 'Para Él', value: 'man' } ], condition: (data) => data.interest === 'underwear' || data.interest === 'both' },
+            { id: 'womanPriority', text: 'Para ella, ¿qué es lo más importante?', options: [ { text: '☁️ La comodidad', value: 'comfort' }, { text: '🎨 El diseño', value: 'design' }, { text: '💎 La calidad', value: 'quality' } ], condition: (data) => data.underwearFor === 'woman' },
+            { id: 'womanColor', text: 'Y en colores, ¿cuál es su paleta ideal?', options: womanColorOptions, isColor: true, condition: (data) => data.underwearFor === 'woman' },
+            { id: 'womanFit', text: 'Al comprar, ¿qué es lo más difícil de encontrar?', options: [ { text: '📏 La talla correcta', value: 'size' }, { text: '✨ Un buen ajuste', value: 'fit' }, { text: '😍 Diseños que me gusten', value: 'style' } ], condition: (data) => data.underwearFor === 'woman' },
+            { id: 'manStyle', text: 'Para él, ¿cuál es su corte preferido?', options: [ { text: 'Bóxer Holgado', value: 'boxer' }, { text: 'Bóxer Ajustado', value: 'brief' }, { text: 'Clásico (Slip)', value: 'slip' } ], condition: (data) => data.underwearFor === 'man' },
+            { id: 'manPriority', text: '¿Y qué es lo más esencial para él?', options: [ { text: '💪 Soporte', value: 'support' }, { text: '☁️ Suavidad', value: 'softness' }, { text: '🎨 Diseño Moderno', value: 'design' } ], condition: (data) => data.underwearFor === 'man' },
+            { id: 'manColor', text: 'En cuanto a colores, ¿qué prefiere?', options: manColorOptions, isColor: true, condition: (data) => data.underwearFor === 'man' },
+            { id: 'sensorialCategory', text: 'Mundo sensorial. ¿Qué categoría te llama más?', options: [ { text: '🪀 Juguetes', value: 'toys' }, { text: '💧 Cosmética', value: 'cosmetics' }, { text: '🎲 Juegos', value: 'games' } ], condition: (data) => data.interest === 'sensorial' || data.interest === 'both' },
+            { id: 'toysInterest', text: 'En Juguetes, ¿cuál es tu interés?', options: [ { text: '👤 A solas', value: 'solo' }, { text: '👥 En pareja', value: 'couple' } ], condition: (data) => data.sensorialCategory === 'toys' },
+            { id: 'cosmeticsInterest', text: 'En Cosmética, ¿qué producto te atrae más?', options: [ { text: '💆‍♀️ Aceites de masaje', value: 'oils' }, { text: '👅 Lubricantes', value: 'lubes' }, { text: '🕯️ Velas aromáticas', value: 'candles' } ], condition: (data) => data.sensorialCategory === 'cosmetics' },
+            { id: 'ageRange', text: 'Para terminar, ¿nos ayudas a entenderte mejor?', options: [ { text: '18-24', value: '18-24' }, { text: '25-34', value: '25-34' }, { text: '35-44', value: '35-44' }, { text: '45+', value: '45+' }, { text: 'Prefiero no decirlo', value: 'skip' } ] },
+            { id: 'final', text: 'Gracias. Déjanos tus datos para ser el primero en saberlo todo.', type: 'email' }
+        ];
 
         // --- Íconos SVG ---
         const ChevronLeftIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg> );
@@ -140,7 +160,7 @@
                     <div className="content-prose">
                         <div className="text-center mb-10">
                             <h1 className="text-4xl font-serif">Política de Privacidad</h1>
-                            <p className="mt-2 text-sm text-gray-500">Última actualización: 23 de agosto de 2025</p>
+                            <p className="mt-2 text-sm text-gray-500">Última actualización: 25 de agosto de 2025</p>
                         </div>
                         <h2>1. ¿Qué Información Recopilamos?</h2>
                         <p>A través de nuestro formulario interactivo, recopilamos tus preferencias de productos (ropa íntima y/o juguetes eróticos) y tu dirección de correo electrónico para notificarte sobre nuestro lanzamiento.</p>
@@ -182,7 +202,7 @@
             );
         };
 
-        // --- Componente de Pregunta Individual ---
+        // --- Componente de Pregunta Individual (con animación JS robusta) ---
         const Question = ({ question, onAnswer }) => {
             const [displayedText, setDisplayedText] = useState('');
             const [showOptions, setShowOptions] = useState(false);
@@ -191,23 +211,32 @@
 
             useEffect(() => {
                 setIsTyping(true);
+                setShowOptions(false);
                 setDisplayedText('');
                 
-                let index = 0;
                 const fullText = question.text;
+                let timeouts = [];
+                const typingSpeed = 50; // Aumentado de 40 a 75 para una escritura más lenta
 
-                const intervalId = setInterval(() => {
-                    if (index < fullText.length) {
-                        setDisplayedText((prev) => prev + fullText.charAt(index));
-                        index++;
-                    } else {
-                        clearInterval(intervalId);
-                        setIsTyping(false);
-                        setTimeout(() => setShowOptions(true), 500);
-                    }
-                }, 40); // Velocidad de escritura
+                // Se programa un timeout para cada letra
+                fullText.split('').forEach((char, index) => {
+                    const timeoutId = setTimeout(() => {
+                        setDisplayedText(prev => prev + char);
+                    }, typingSpeed * (index + 1));
+                    timeouts.push(timeoutId);
+                });
 
-                return () => clearInterval(intervalId);
+                // Se programa un timeout final para mostrar las opciones
+                const finalTimeout = setTimeout(() => {
+                    setIsTyping(false);
+                    setShowOptions(true);
+                }, typingSpeed * fullText.length + 500);
+                timeouts.push(finalTimeout);
+
+                // Función de limpieza que cancela TODOS los timeouts programados
+                return () => {
+                    timeouts.forEach(clearTimeout);
+                };
             }, [question]);
 
             const handleMultiSelect = (value) => {
@@ -224,7 +253,7 @@
 
                 return (
                     <form onSubmit={(e) => { e.preventDefault(); onAnswer(question.id, { firstName, lastName, email, phone }); }} className="w-full max-w-md text-center">
-                        <h2 className="text-2xl md:text-3xl font-serif mb-8 flex items-center justify-center min-h-[3em] md:min-h-[2em]">
+                        <h2 className="text-2xl md:text-4xl font-serif mb-8 flex items-center justify-center min-h-[3em] md:min-h-[2em]">
                             <span>
                                 {displayedText}
                                 {isTyping && <span className="blinking-cursor">|</span>}
@@ -466,24 +495,6 @@
             const [animationState, setAnimationState] = useState('in');
             const [currentQuestion, setCurrentQuestion] = useState(null);
             
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbylU-f5oA5Rrk_y2pV7pb6xevuek6LqlOdm_Kpfwf4URuYTZSf_YAV9OcOlouixXk8PdA/exec';
-
-            const questions = [
-                { id: 'interest', text: 'Para empezar, ¿qué te interesa descubrir?', options: [ { text: '👙 Ropa Íntima', value: 'underwear' }, { text: '✨ Mundo Sensorial', value: 'sensorial' }, { text: '💖 Ambos', value: 'both' } ] },
-                { id: 'underwearFor', text: 'Perfecto. ¿Para quién es la búsqueda?', options: [ { text: 'Para Ella', value: 'woman' }, { text: 'Para Él', value: 'man' } ], condition: (data) => data.interest === 'underwear' || data.interest === 'both' },
-                { id: 'womanPriority', text: 'Para ella, ¿qué es lo más importante?', options: [ { text: '☁️ La comodidad', value: 'comfort' }, { text: '🎨 El diseño', value: 'design' }, { text: '💎 La calidad', value: 'quality' } ], condition: (data) => data.underwearFor === 'woman' },
-                { id: 'womanColor', text: 'Y en colores, ¿cuál es su paleta ideal?', options: womanColorOptions, isColor: true, condition: (data) => data.underwearFor === 'woman' },
-                { id: 'womanFit', text: 'Al comprar, ¿qué es lo más difícil de encontrar?', options: [ { text: '📏 La talla correcta', value: 'size' }, { text: '✨ Un buen ajuste', value: 'fit' }, { text: '😍 Diseños que me gusten', value: 'style' } ], condition: (data) => data.underwearFor === 'woman' },
-                { id: 'manStyle', text: 'Para él, ¿cuál es su corte preferido?', options: [ { text: 'Bóxer Holgado', value: 'boxer' }, { text: 'Bóxer Ajustado', value: 'brief' }, { text: 'Clásico (Slip)', value: 'slip' } ], condition: (data) => data.underwearFor === 'man' },
-                { id: 'manPriority', text: '¿Y qué es lo más esencial para él?', options: [ { text: '💪 Soporte', value: 'support' }, { text: '☁️ Suavidad', value: 'softness' }, { text: '🎨 Diseño Moderno', value: 'design' } ], condition: (data) => data.underwearFor === 'man' },
-                { id: 'manColor', text: 'En cuanto a colores, ¿qué prefiere?', options: manColorOptions, isColor: true, condition: (data) => data.underwearFor === 'man' },
-                { id: 'sensorialCategory', text: 'Mundo sensorial. ¿Qué categoría te llama más?', options: [ { text: '🪀 Juguetes', value: 'toys' }, { text: '💧 Cosmética', value: 'cosmetics' }, { text: '🎲 Juegos', value: 'games' } ], condition: (data) => data.interest === 'sensorial' || data.interest === 'both' },
-                { id: 'toysInterest', text: 'En Juguetes, ¿cuál es tu interés?', options: [ { text: '👤 A solas', value: 'solo' }, { text: '👥 En pareja', value: 'couple' } ], condition: (data) => data.sensorialCategory === 'toys' },
-                { id: 'cosmeticsInterest', text: 'En Cosmética, ¿qué producto te atrae más?', options: [ { text: '💆‍♀️ Aceites de masaje', value: 'oils' }, { text: '👅 Lubricantes', value: 'lubes' }, { text: '🕯️ Velas aromáticas', value: 'candles' } ], condition: (data) => data.sensorialCategory === 'games' },
-                { id: 'ageRange', text: 'Para terminar, ¿nos ayudas a entenderte mejor?', options: [ { text: '18-24', value: '18-24' }, { text: '25-34', value: '25-34' }, { text: '35-44', value: '35-44' }, { text: '45+', value: '45+' }, { text: 'Prefiero no decirlo', value: 'skip' } ] },
-                { id: 'final', text: 'Gracias. Déjanos tus datos para ser el primero en saberlo todo.', type: 'email' }
-            ];
-            
             useEffect(() => {
                 if (isActive) {
                     const initialQuestions = questions.filter(q => !q.condition || q.condition({}));
@@ -721,10 +732,10 @@
             );
         }
 
+        // --- Renderizado con la API moderna de React 18 ---
         const container = document.getElementById('root');
         const root = ReactDOM.createRoot(container);
         root.render(<App />);
     </script>
 </body>
 </html>
-�
